@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import StartButton from "../components/StartButton";
+import StartButton from "../components/STRTBUTTON";
 
 export default function StartScreen() {
   return (
