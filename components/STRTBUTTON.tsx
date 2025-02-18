@@ -4,7 +4,9 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
 
+// кнопка для перехода в чат 
 export default function StartButton() {
+  // какая-то хуйня для навигации
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
@@ -15,7 +17,7 @@ export default function StartButton() {
       </View>
       <TouchableOpacity
         style={styles.Button}
-        onPress={() => navigation.navigate("MainScreen")}
+        onPress={() => navigation.navigate("MainScreen")} // срабатывает по нажатии на кнопку 
       >
         <Text style={styles.ButtonText}>Начать</Text>
       </TouchableOpacity>
