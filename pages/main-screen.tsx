@@ -12,8 +12,8 @@ import { Header, Input } from "../components/INHEADER"
 import Message from "../components/Message"
 import { useState } from "react"
 import messageInterface from "../types/utils";
-
-import { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react"; // чтобы был скролл
+import { SafeAreaView } from "react-native-safe-area-context"; // хуйня чтобы шапка не вылезала за пределы экрана
 
 // главный экран чата 
 export default function MainScreen() {
@@ -28,28 +28,30 @@ export default function MainScreen() {
   }, [messages])
 
   return (
-    <KeyboardAvoidingView
-      // из-строки ниже на андроидах появляется белый выступ снизу 
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      style={styles.container}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.innerContainer}>
-          <Header />
-          <ScrollView style={styles.messageContainer} ref={scrollViewRef}>
-            {messages.map((message) => (
-              <Message key={message.messageId} {...message} />
-            ))}
-          </ScrollView>
-          <Input
-            input={input}
-            setInput={setInput}
-            messages={messages}
-            setMessages={setMessages}
-          />
-        </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "#934CC2", }}>
+      <KeyboardAvoidingView
+        // из-строки ниже на андроидах появляется белый выступ снизу 
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={styles.container}
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.innerContainer}>
+            <Header />
+            <ScrollView style={styles.messageContainer} ref={scrollViewRef}>
+              {messages.map((message) => (
+                <Message key={message.messageId} {...message} />
+              ))}
+            </ScrollView>
+            <Input
+              input={input}
+              setInput={setInput}
+              messages={messages}
+              setMessages={setMessages}
+            />
+          </View>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
