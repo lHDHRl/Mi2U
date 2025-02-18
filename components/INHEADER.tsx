@@ -1,27 +1,27 @@
-import React, { useCallback } from "react";
+import React, { useCallback } from "react"; // useCallback чтобы каждый раз не перерендировался список
 import {
   View,
   TextInput,
   Text,
-  TouchableOpacity,
+  TouchableOpacity, //для создания нажимаемых областей
   StyleSheet,
   Keyboard,
 } from "react-native";
 import messageInterface from "../types/utils";
 
-export function Input(props: {
-  input: string;
-  setInput: React.Dispatch<React.SetStateAction<string>>;
-  messages: messageInterface[];
-  setMessages: React.Dispatch<React.SetStateAction<messageInterface[]>>;
+export function Input(props: { //props это объект
+  input: string; // сюда будет вводить user
+  setInput: React.Dispatch<React.SetStateAction<string>>
+  messages: messageInterface[] // массив из messageInterface
+  setMessages: React.Dispatch<React.SetStateAction<messageInterface[]>>
 }) {
   const { input, setInput, messages, setMessages } = props;
-
+  // это функция, обёрнутая в хук useCallback, которая вызывается при изменении текста
   const handleOnChangeText = useCallback((text: string) => setInput(text), []);
 
   const formatTime = (): string => {
     const now = new Date();
-    return now.toLocaleTimeString("en-US", { hour12: false });
+    return now.toLocaleTimeString(); // для определения времени локального
   };
 
   const onSubmitEditing = useCallback(() => {
