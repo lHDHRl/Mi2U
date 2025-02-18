@@ -9,25 +9,30 @@ import {
 } from "react-native";
 import messageInterface from "../types/utils";
 
-export function Input(props: { //props это объект
-  input: string; // сюда будет вводить user
-  setInput: React.Dispatch<React.SetStateAction<string>>
-  messages: messageInterface[] // массив из messageInterface
-  setMessages: React.Dispatch<React.SetStateAction<messageInterface[]>>
+// текстовое поле ввода сообщения 
+export function Input(props: {
+  input: string; // текст введенный в поле ввода 
+  setInput: React.Dispatch<React.SetStateAction<string>>; // для обработки изменения текста в поле ввода 
+  messages: messageInterface[]; // массив отправленных пользователем сообщений
+  setMessages: React.Dispatch<React.SetStateAction<messageInterface[]>>; // для обработки изменения массива сообщений 
 }) {
   const { input, setInput, messages, setMessages } = props;
-  // это функция, обёрнутая в хук useCallback, которая вызывается при изменении текста
+
+  // Обработка изменений в поле ввода 
   const handleOnChangeText = useCallback((text: string) => setInput(text), []);
 
+  // исправил у danil формат вывода времени  
   const formatTime = (): string => {
-    const now = new Date();
-    return now.toLocaleTimeString(); // для определения времени локального
+    // текущее время в формате hh:mm
+    const currentTime = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    return currentTime
   };
-
+  // как только пользователь отправляет сообщение 
   const onSubmitEditing = useCallback(() => {
     const trimmedInput = input.trim();
-    if (!trimmedInput) return;
+    if (!trimmedInput) return; // чекаем чтобы он не отправлял пустую строку 
 
+    // создаем объект интерфейса чтобы хранить информацию о новом созданном сообщении 
     const newMessage: messageInterface = {
       type: "yours",
       messageId: Date.now().toString(),
@@ -35,10 +40,12 @@ export function Input(props: { //props это объект
       time: formatTime(),
     };
 
-    console.log("Message sent:", newMessage);
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
-    setInput("");
-    Keyboard.dismiss(); // Dismiss keyboard after sending
+    // console.log("Message sent:", newMessage);
+    setMessages((prevMessages) => [...prevMessages, newMessage]); // внесение нового сообщения 
+    setInput(""); // очищаем поле ввода 
+    // строка ниже нужна (я так понял) чтобы выходить из клавы при отправке 
+    // убрал, потому что неудобно 
+    // Keyboard.dismiss(); // Dismiss keyboard after sending
   }, [input, setMessages, setInput]);
 
   return (
@@ -64,7 +71,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "white",
     padding: 10,
-    borderRadius: 10,
     width: "100%",
   },
   textInput: {
@@ -91,6 +97,7 @@ const styles = StyleSheet.create({
   },
 });
 
+// Шапка приложения
 export function Header() {
   return (
     <View style={headerStyle.container}>

@@ -1,15 +1,16 @@
 import { View, Text, StyleSheet } from "react-native";
 
+// сообщение отправляемое пользователями
 export default function Message(props: {
-  type: "yours" | "theirs";
-  messageId: string;
+  type: "yours" | "theirs"; // сообщения бывают двух типов: отправленные тобой; другими пользователями
+  messageId: string; 
   message: string;
-  time: string;
-  answerTo?: string;
+  time: string; // время отправки сообщения 
+  answerTo?: string; // опциональный аргумент - указывает является ли сообщение ответом кому либо (должен указывать на id)
 }) {
   const { type, messageId, message, time, answerTo } = props;
 
-  const isYours = type === "yours";
+  const isYours = type === "yours"; // в зависимости от результата проверки будет зависеть стилизация данного компонента
 
   return (
     <View style={isYours ? styles.yourContainer : styles.theirContainer}>
