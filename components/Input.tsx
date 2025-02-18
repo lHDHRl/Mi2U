@@ -94,6 +94,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "white",
+<<<<<<< HEAD:components/INHEADER.tsx
     justifyContent: "center",
     alignItems: "center",
     fontSize: 16,
@@ -115,12 +116,11 @@ const headerStyle = StyleSheet.create({
     backgroundColor: "#934CC2",
     padding: 10,
     flexDirection: "row",
+=======
+>>>>>>> main:components/Input.tsx
     justifyContent: "center",
     alignItems: "center",
-  },
-  text: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: "bold",
-    color: "#B8B2EF",
   },
 });
