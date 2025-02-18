@@ -7,21 +7,23 @@ import {
   TouchableOpacity,
   StyleSheet,
   Keyboard,
+  SafeAreaView,
 } from "react-native";
 import messageInterface from "../types/utils";
 
+// Шапка приложения
 export function Header() {
   return (
-    <View style={headerStyle.container}>
+    <SafeAreaView style={headerStyle.container}>
       <Text style={headerStyle.text}>mi2U</Text>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const headerStyle = StyleSheet.create({
   container: {
     backgroundColor: "#934CC2",
-    padding: 2,
+    padding: 10,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",

@@ -91,7 +91,6 @@ export default function MainScreen() {
   }, [messages]);
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#934CC2" }}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.container}
@@ -139,7 +138,6 @@ export default function MainScreen() {
           />
         </View>
       </KeyboardAvoidingView>
-    </SafeAreaView>
   );
 }
 
