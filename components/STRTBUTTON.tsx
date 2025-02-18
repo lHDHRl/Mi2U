@@ -4,51 +4,54 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types/navigation";
 
+// кнопка для перехода в чат 
 export default function StartButton() {
+  // какая-то хуйня для навигации
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   return (
-    <View style={ComponentStyle.MainContainer}>
-      <View style={ComponentStyle.TextContainer}>
-        <Text style={ComponentStyle.TextContainer}>mi2U</Text>
+    <View style={styles.MainContainer}>
+      <View style={styles.TextContainer}>
+        <Text style={styles.TextTitle}>mi2U</Text>
       </View>
-      <View style={ComponentStyle.ButtonContainer}>
-        <TouchableOpacity
-          style={ComponentStyle.ButtonText}
-          onPress={() => navigation.navigate("MainScreen")}
-        >
-          <Text style={ComponentStyle.ButtonText}>Начать</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity
+        style={styles.Button}
+        onPress={() => navigation.navigate("MainScreen")} // срабатывает по нажатии на кнопку 
+      >
+        <Text style={styles.ButtonText}>Начать</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
-const ComponentStyle = StyleSheet.create({
-  ButtonContainer: {
-    borderRadius: 15,
-    backgroundColor: "#fff", // белый
-    alignItems: "center",
-    justifyContent: "center",
-  },
+const styles = StyleSheet.create({
   MainContainer: {
+    flex: 1,
     backgroundColor: "#934CC2",
     alignItems: "center",
     justifyContent: "center",
   },
   TextContainer: {
+    marginBottom: 20,
+  },
+  TextTitle: {
     color: "#B8B2EF",
     fontSize: 60,
     fontFamily: "K2D_800ExtraBold",
+    textAlign: "center",
+  },
+  Button: {
+    borderRadius: 15,
+    backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
   },
   ButtonText: {
-    padding: 5,
-    paddingLeft: 20,
-    paddingRight: 20,
     fontSize: 25,
-    fontWeight: 800,
+    fontWeight: "800",
     fontFamily: "K2D_800ExtraBold",
     color: "#958ED2",
   },

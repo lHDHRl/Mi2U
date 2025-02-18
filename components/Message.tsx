@@ -1,120 +1,74 @@
-import { View } from "react-native";
-import { Text } from "react-native";
-import { StyleSheet } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 
+// сообщение отправляемое пользователями
 export default function Message(props: {
-  type: "yours" | "theirs";
-  messageId: string;
+  type: "yours" | "theirs"; // сообщения бывают двух типов: отправленные тобой; другими пользователями
+  messageId: string; 
   message: string;
-  time: string;
-  answerTo?: string;
+  time: string; // время отправки сообщения 
+  answerTo?: string; // опциональный аргумент - указывает является ли сообщение ответом кому либо (должен указывать на id)
 }) {
   const { type, messageId, message, time, answerTo } = props;
 
-  if (type === "yours") {
-    return (
-      <View style={yourMessageStyle.container}>
-        {/* <Text style={yourMessageStyle.messageId}>{messageId}</Text> */}
-        {(() => {
-          if (answerTo !== undefined) {
-            return <Text style={yourMessageStyle.answerTo}>{answerTo}</Text>;
-          }
-        })()}
+  const isYours = type === "yours"; // в зависимости от результата проверки будет зависеть стилизация данного компонента
 
-        <Text style={yourMessageStyle.message}>{message}</Text>
-        <Text style={yourMessageStyle.time}>{time}</Text>
-
-        <Text style={yourMessageStyle.messageId}>{messageId}</Text>
-      </View>
-    );
-  } else if (type === "theirs") {
-    return (
-      <View style={theirsMessageStyle.container}>
-        {(() => {
-          if (answerTo !== undefined) {
-            return <Text style={theirsMessageStyle.answerTo}>{answerTo}</Text>;
-          }
-        })()}
-
-        <Text style={theirsMessageStyle.message}>{message}</Text>
-        <Text style={yourMessageStyle.time}>{time}</Text>
-        <Text style={theirsMessageStyle.messageId}>{messageId}</Text>
-      </View>
-    );
-  }
+  return (
+    <View style={isYours ? styles.yourContainer : styles.theirContainer}>
+      {answerTo && (
+        <Text style={isYours ? styles.yourAnswerTo : styles.theirAnswerTo}>
+          {answerTo}
+        </Text>
+      )}
+      <Text style={styles.message}>{message}</Text>
+      <Text style={styles.time}>{time}</Text>
+      <Text style={styles.messageId}>{messageId}</Text>
+    </View>
+  );
 }
 
-const yourMessageStyle = StyleSheet.create({
-  container: {
+const styles = StyleSheet.create({
+  yourContainer: {
     alignSelf: "flex-end",
     marginBottom: 15,
     width: 180,
     backgroundColor: "#52B788",
     padding: 8,
-
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     borderBottomLeftRadius: 20,
   },
-
-  answerTo: {
+  theirContainer: {
+    alignSelf: "flex-start",
+    marginBottom: 15,
+    width: 180,
+    backgroundColor: "#958ED2",
+    padding: 8,
+    borderTopRightRadius: 20,
+    borderBottomRightRadius: 20,
+    borderTopLeftRadius: 20,
+  },
+  yourAnswerTo: {
     backgroundColor: "#B2E3CC",
     padding: 5,
     borderLeftWidth: 2,
     borderRadius: 5,
     borderLeftColor: "#498467",
   },
-
-  messageId: {
-    fontWeight: 500,
-    fontSize: 8,
-    textAlign: "right",
-  },
-
-  message: {
-    color: "#E3E3E3",
-  },
-
-  time: {
-    color: "#E3E3E3",
-    textAlign: "right",
-    fontSize: 8,
-  },
-});
-
-const theirsMessageStyle = StyleSheet.create({
-  container: {
-    alignSelf: "flex-start",
-    marginBottom: 15,
-    width: 180,
-    backgroundColor: "#958ED2",
-    padding: 8,
-
-    borderTopRightRadius: 20,
-    borderBottomRightRadius: 20,
-    borderTopLeftRadius: 20,
-  },
-
-  answerTo: {
+  theirAnswerTo: {
     backgroundColor: "#B8B2EF",
     padding: 5,
     borderLeftWidth: 2,
     borderRadius: 5,
     borderLeftColor: "#934CC2",
   },
-
   messageId: {
-    // fontFamily: "Inter",
-    // color: "red",
-    fontWeight: 500,
+    fontWeight: "500",
     fontSize: 8,
     textAlign: "right",
   },
-
   message: {
     color: "#E3E3E3",
   },
-
   time: {
     color: "#E3E3E3",
     textAlign: "right",

@@ -3,4 +3,5 @@ export default interface messageInterface {
   messageId: string;
   message: string;
   time: string;
+  answerTo?: string;
 }
