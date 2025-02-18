@@ -17,7 +17,7 @@ import { SafeAreaView } from "react-native-safe-area-context"; // хуйня ч�
 import { Text, TouchableOpacity } from "react-native";
 // главный экран чата
 export default function MainScreen() {
-  // массив сообщений
+  // массив сообщенийs
   const [messages, setMessages] = useState<messageInterface[]>([]);
   // хранит текст введенный в поле ввода
   const [input, setInput] = useState<string>("");
@@ -37,7 +37,6 @@ export default function MainScreen() {
         });
       }
     );
-
     return () => {
       keyboardDidHideListener.remove();
     };
