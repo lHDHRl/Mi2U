@@ -8,13 +8,14 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from "react-native";
-import { Header, Input } from "../components/INHEADER";
+import { Input } from "../components/Input";
 import Message from "../components/Message";
 import { useState } from "react";
 import messageInterface from "../types/utils";
 import { useEffect, useRef } from "react"; // чтобы был скролл
 import { SafeAreaView } from "react-native-safe-area-context"; // хуйня чтобы шапка не вылезала за пределы экрана
 import { Text, TouchableOpacity } from "react-native";
+import { Header } from "../components/Header";
 // главный экран чата
 export default function MainScreen() {
   // массив сообщенийs
