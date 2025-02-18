@@ -13,6 +13,10 @@ import Message from "../components/Message"
 import { useState } from "react"
 import messageInterface from "../types/utils";
 import { useEffect, useRef } from "react"; // чтобы был скролл
+import { useNavigation } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import { NavigationContainer } from "@react-navigation/native";
+import PrefersHomeIndicatorAutoHidden, { HomeIndicator } from "react-native-home-indicator";
 import { SafeAreaView } from "react-native-safe-area-context"; // хуйня чтобы шапка не вылезала за пределы экрана
 
 // главный экран чата 
@@ -21,21 +25,21 @@ export default function MainScreen() {
   const [messages, setMessages] = useState<messageInterface[]>([]);
   // хранит текст введенный в поле ввода 
   const [input, setInput] = useState<string>("");
-
+  const navigation = useNavigation();
   const scrollViewRef = useRef<ScrollView>(null);
   useEffect(() => {
-    scrollViewRef.current?.scrollToEnd({ animated: true, });
+    scrollViewRef.current?.scrollToEnd({ animated: true, })
   }, [messages])
+  
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#934CC2", }}>
       <KeyboardAvoidingView
         // из-строки ниже на андроидах появляется белый выступ снизу 
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.container}
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={styles.innerContainer}>
+          <View style={styles.innerContainer}>  
             <Header />
             <ScrollView style={styles.messageContainer} ref={scrollViewRef}>
               {messages.map((message) => (
@@ -51,7 +55,6 @@ export default function MainScreen() {
           </View>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
-    </SafeAreaView>
   );
 }
 
