@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import { TouchableWithoutFeedback } from "react-native";
 
 // Типизация пропсов
 interface MessageProps {
@@ -14,12 +14,37 @@ interface MessageProps {
 const Message: React.FC<MessageProps> = ({ type, messageId, message, time, answerTo }) => {
   const isYours = type === "yours"; // Определяем тип сообщения
 
-  const handleOnPress = () => {
-    console.log(`${message} has been touched`)
+  // обработчик длительного нажатия 
+  const handleOnLongPress = () => {
+    console.log(`${message} has been pressed for a long time`)
   }
 
+  return (
+    <TouchableWithoutFeedback style={isYours ? styles.yourContainer : styles.theirContainer} onLongPress={handleOnLongPress}>
+      <View style={isYours ? styles.yourContainer : styles.theirContainer}>
+        {/* Блок ответа на сообщение */}
+        {answerTo && (
+          <Text
+            style={isYours ? styles.yourAnswerTo : styles.theirAnswerTo}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            Ответ на: {answerTo}
+          </Text>
+        )}
+        {/* Основной текст сообщения */}
+        <Text style={styles.message}>{message}</Text>
+        {/* Время отправки */}
+        <Text style={styles.time}>{time}</Text>
+
+        {/* Message ID (только в DEV-режиме) */}
+        {__DEV__ && <Text style={styles.messageId}>{messageId}</Text>}
+      </View>
+    </TouchableWithoutFeedback>
+  );
+
   // return (
-  //   <TouchableWithoutFeedback style={isYours ? styles.yourContainer : styles.theirContainer} onPress={handleOnPress}>
+  //   <View style={isYours ? styles.yourContainer : styles.theirContainer}>
   //     {/* Блок ответа на сообщение */}
   //     {answerTo && (
   //       <Text
@@ -37,30 +62,8 @@ const Message: React.FC<MessageProps> = ({ type, messageId, message, time, answe
 
   //     {/* Message ID (только в DEV-режиме) */}
   //     {__DEV__ && <Text style={styles.messageId}>{messageId}</Text>}
-  //   </TouchableWithoutFeedback>
+  //   </View>
   // );
-
-  return (
-    <View style={isYours ? styles.yourContainer : styles.theirContainer}>
-      {/* Блок ответа на сообщение */}
-      {answerTo && (
-        <Text
-          style={isYours ? styles.yourAnswerTo : styles.theirAnswerTo}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-        >
-          Ответ на: {answerTo}
-        </Text>
-      )}
-      {/* Основной текст сообщения */}
-      <Text style={styles.message}>{message}</Text>
-      {/* Время отправки */}
-      <Text style={styles.time}>{time}</Text>
-
-      {/* Message ID (только в DEV-режиме) */}
-      {__DEV__ && <Text style={styles.messageId}>{messageId}</Text>}
-    </View>
-  );
 };
 
 // Стили
