@@ -14,6 +14,8 @@ import Message from "../components/Message";
 import messageInterface from "../types/utils";
 import { Header } from "../components/Header";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Alert } from "react-native";
+import axios from "axios";
 
 export default function MainScreen() {
   const [messages, setMessages] = useState<messageInterface[]>([]);
@@ -22,20 +24,55 @@ export default function MainScreen() {
   const [showScrollButton, setShowScrollButton] = useState(false);
   const isAutoScrolling = useRef(false);
   const isUserAtBottom = useRef(true);
+  const [replyMessage, setReplyMessage] = useState<messageInterface | null>(
+    null
+  );
+  const [menuVisible, setMenuVisible] = useState(false); // Видимость меню
+  const [selectedMessageId, setSelectedMessageId] = useState<string | null>(
+    null
+  ); // ID выбранного сообщения
 
-  useEffect(() => { // как только изменяется массив с сообщениями скроллится вниз
+  // Еще хочется добавить что в коде уже происходит пиздец и его бы разделить
+  //Взаимодействие с беком (непотерять, работает локально ток у меня)
+  const sendMessageToServer = async (message: messageInterface) => {
+    try {
+      await axios.post("http://192.168.183.158:8080/send", message); // если кто вдруг тестить будет поменяйте тут на свой ipconfig ipv4 wlan device
+      console.log("Message sent to server:", message);
+    } catch (error) {
+      console.error("Failed to send message to server:", error);
+    }
+  };
+
+  useEffect(() => {
+    // как только изменяется массив с сообщениями скроллится вниз
     if (messages.length === 0 || !isUserAtBottom.current) return;
     scrollToBottom();
   }, [messages]);
 
   const handleScroll = useCallback((event: any) => {
     const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
-    const isAtBottom = contentOffset.y + layoutMeasurement.height >= contentSize.height - 10; // чз за 10 почему откуда (это типа паддинг у месседж контейнера?)
+    const THRESHOLD = 150; // Высота нескольких сообщений, т.е. кнопка появляется после того как пользователь
+    const isAtBottom =
+      contentOffset.y + layoutMeasurement.height >= contentSize.height - 10;
+    const isNearBottom =
+      contentOffset.y + layoutMeasurement.height >=
+      contentSize.height - THRESHOLD;
+
     if (isAtBottom !== isUserAtBottom.current) {
       isUserAtBottom.current = isAtBottom;
-      setShowScrollButton(!isAtBottom);
+    }
+
+    if (!isNearBottom) {
+      setShowScrollButton(true);
+    } else {
+      setShowScrollButton(false);
     }
   }, []);
+
+  const handleLongPress = (messageId: string) => {
+    setSelectedMessageId(messageId); // Сохраняем ID выбранного сообщения
+    showDeleteMenu(); // Показываем меню
+  };
 
   const scrollToBottom = useCallback(() => {
     isAutoScrolling.current = true;
@@ -47,10 +84,36 @@ export default function MainScreen() {
     }, 500);
   }, []);
 
-  // для удаления сообщений по id 
+  // для удаления сообщений по id
   const deleteMessage = (id: string) => {
-    setMessages(prevMessages => prevMessages.filter(message => message.messageId !== id));
-  }
+    setMessages((prevMessages) =>
+      prevMessages.filter((message) => message.messageId !== id)
+    );
+  };
+
+  const showDeleteMenu = () => {
+    if (!selectedMessageId) return;
+
+    Alert.alert(
+      "Удалить сообщение",
+      "Вы уверены, что хотите удалить это сообщение?",
+      [
+        {
+          text: "Отмена",
+          onPress: () => setMenuVisible(false),
+          style: "cancel",
+        },
+        {
+          text: "Удалить",
+          onPress: () => {
+            deleteMessage(selectedMessageId);
+            setMenuVisible(false);
+          },
+          style: "destructive",
+        },
+      ]
+    );
+  };
 
   return (
     <View style={styles.safeContainer}>
@@ -59,7 +122,7 @@ export default function MainScreen() {
         style={styles.container}
       >
         {/* по совету дани чтобы хедер не залазил на шапку телефона */}
-        <SafeAreaView> 
+        <SafeAreaView>
           <Header />
         </SafeAreaView>
         <ScrollView
@@ -69,23 +132,46 @@ export default function MainScreen() {
           onScroll={handleScroll}
           scrollEventThrottle={16}
           onContentSizeChange={() => {
-            // if (isUserAtBottom.current) scrollToBottom(); // вот так было - из-за этого скролл происходил только когда юзер уже был внизу 
-            scrollToBottom(); // убрал условие чтобы скроллилось вниз всегда при отправке сообщений независимо от того где был пользователь 
+            // if (isUserAtBottom.current) scrollToBottom(); // вот так было - из-за этого скролл происходил только когда юзер уже был внизу
+            scrollToBottom(); // убрал условие чтобы скроллилось вниз всегда при отправке сообщений независимо от того где был пользователь
           }}
         >
           {messages.map((message) => (
-            <Message key={message.messageId} {...message} />
+            <Message
+              key={message.messageId}
+              {...message}
+              setReplyMessage={setReplyMessage}
+              onLongPress={() => handleLongPress(message.messageId)} // Передаем обработчик долгого нажатия
+            />
           ))}
+          <Message
+            type="theirs"
+            messageId="228"
+            message="Привет! Как дела? Я хочу рассказать историю как я попал в зомба апокалипсис прикинь да"
+            time="12:00"
+            setReplyMessage={setReplyMessage}
+          />
         </ScrollView>
 
         {/* Контейнер для кнопки, чтобы она не скрывалась за клавиатурой */}
         <View>
           {showScrollButton && (
-            <TouchableOpacity style={styles.scrollButton} onPress={scrollToBottom}>
+            <TouchableOpacity
+              style={styles.scrollButton}
+              onPress={scrollToBottom}
+            >
               <Text style={styles.scrollButtonText}>⬇</Text>
             </TouchableOpacity>
           )}
-          <Input input={input} setInput={setInput} messages={messages} setMessages={setMessages} />
+          <Input
+            input={input}
+            setInput={setInput}
+            messages={messages}
+            setMessages={setMessages}
+            replyMessage={replyMessage}
+            setReplyMessage={setReplyMessage}
+            sendMessageToServer={sendMessageToServer}
+          />
         </View>
       </KeyboardAvoidingView>
     </View>
