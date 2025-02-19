@@ -14,6 +14,7 @@ import Message from "../components/Message";
 import messageInterface from "../types/utils";
 import { Header } from "../components/Header";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Alert } from "react-native";
 
 export default function MainScreen() {
   const [messages, setMessages] = useState<messageInterface[]>([]);
@@ -25,6 +26,10 @@ export default function MainScreen() {
   const [replyMessage, setReplyMessage] = useState<messageInterface | null>(
     null
   );
+  const [menuVisible, setMenuVisible] = useState(false); // Видимость меню
+  const [selectedMessageId, setSelectedMessageId] = useState<string | null>(
+    null
+  ); // ID выбранного сообщения
 
   useEffect(() => {
     // как только изменяется массив с сообщениями скроллится вниз
@@ -52,6 +57,11 @@ export default function MainScreen() {
     }
   }, []);
 
+  const handleLongPress = (messageId: string) => {
+    setSelectedMessageId(messageId); // Сохраняем ID выбранного сообщения
+    showDeleteMenu(); // Показываем меню
+  };
+
   const scrollToBottom = useCallback(() => {
     isAutoScrolling.current = true;
     setShowScrollButton(false);
@@ -66,6 +76,30 @@ export default function MainScreen() {
   const deleteMessage = (id: string) => {
     setMessages((prevMessages) =>
       prevMessages.filter((message) => message.messageId !== id)
+    );
+  };
+
+  const showDeleteMenu = () => {
+    if (!selectedMessageId) return;
+
+    Alert.alert(
+      "Удалить сообщение",
+      "Вы уверены, что хотите удалить это сообщение?",
+      [
+        {
+          text: "Отмена",
+          onPress: () => setMenuVisible(false),
+          style: "cancel",
+        },
+        {
+          text: "Удалить",
+          onPress: () => {
+            deleteMessage(selectedMessageId);
+            setMenuVisible(false);
+          },
+          style: "destructive",
+        },
+      ]
     );
   };
 
@@ -94,7 +128,8 @@ export default function MainScreen() {
             <Message
               key={message.messageId}
               {...message}
-              setReplyMessage={setReplyMessage} // Передаем setReplyMessage
+              setReplyMessage={setReplyMessage}
+              onLongPress={() => handleLongPress(message.messageId)} // Передаем обработчик долгого нажатия
             />
           ))}
           <Message

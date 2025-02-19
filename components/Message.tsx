@@ -4,6 +4,7 @@ import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { useDoubleTap } from "../hooks/useDoubleTap";
 import messageInterface from "../types/utils";
 
+// Типизация пропсов
 interface MessageProps {
   type: "yours" | "theirs"; // Тип сообщения
   messageId: string; // Уникальный ID сообщения
@@ -14,6 +15,7 @@ interface MessageProps {
     React.SetStateAction<messageInterface | null>
   >; // Функция для установки reply
   replyText?: string; // Текст сообщения, на которое идет ответ (опционально)
+  onLongPress?: () => void; // Новый пропс для долгого нажатия
 }
 
 const Message: React.FC<MessageProps> = ({
@@ -24,6 +26,7 @@ const Message: React.FC<MessageProps> = ({
   answerTo,
   setReplyMessage,
   replyText,
+  onLongPress,
 }) => {
   const isYours = type === "yours"; // Определяем тип сообщения
 
@@ -34,7 +37,14 @@ const Message: React.FC<MessageProps> = ({
   });
 
   return (
-    <TouchableWithoutFeedback onPress={handleDoubleTap}>
+    <TouchableWithoutFeedback
+      onPress={handleDoubleTap} // Двойное нажатие для reply
+      onLongPress={() => {
+        if (type === "yours" && onLongPress) {
+          onLongPress(); // Вызываем переданный обработчик долгого нажатия
+        }
+      }}
+    >
       <View style={isYours ? styles.yourContainer : styles.theirContainer}>
         {/* Блок ответа на сообщение */}
         {replyText && (
