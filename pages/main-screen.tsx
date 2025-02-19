@@ -23,17 +23,29 @@ export default function MainScreen() {
   const isAutoScrolling = useRef(false);
   const isUserAtBottom = useRef(true);
 
-  useEffect(() => { // как только изменяется массив с сообщениями скроллится вниз
+  useEffect(() => {
+    // как только изменяется массив с сообщениями скроллится вниз
     if (messages.length === 0 || !isUserAtBottom.current) return;
     scrollToBottom();
   }, [messages]);
 
   const handleScroll = useCallback((event: any) => {
     const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
-    const isAtBottom = contentOffset.y + layoutMeasurement.height >= contentSize.height - 10; // чз за 10 почему откуда (это типа паддинг у месседж контейнера?)
+    const THRESHOLD = 250; // Высота нескольких сообщений, т.е. кнопка появляется после того как пользователь находится на какой то высоте от конца
+    const isAtBottom =
+      contentOffset.y + layoutMeasurement.height >= contentSize.height - 10;
+    const isNearBottom =
+      contentOffset.y + layoutMeasurement.height >=
+      contentSize.height - THRESHOLD;
+
     if (isAtBottom !== isUserAtBottom.current) {
-      isUserAtBottom.current = isAtBottom;
-      setShowScrollButton(!isAtBottom);
+      isUserAtBottom.current = isAtBottom; // уверен что где то понадообится потом
+    }
+
+    if (!isNearBottom) {
+      setShowScrollButton(true);
+    } else {
+      setShowScrollButton(false);
     }
   }, []);
 
@@ -47,10 +59,12 @@ export default function MainScreen() {
     }, 500);
   }, []);
 
-  // для удаления сообщений по id 
+  // для удаления сообщений по id
   const deleteMessage = (id: string) => {
-    setMessages(prevMessages => prevMessages.filter(message => message.messageId !== id));
-  }
+    setMessages((prevMessages) =>
+      prevMessages.filter((message) => message.messageId !== id)
+    );
+  };
 
   return (
     <View style={styles.safeContainer}>
@@ -59,7 +73,7 @@ export default function MainScreen() {
         style={styles.container}
       >
         {/* по совету дани чтобы хедер не залазил на шапку телефона */}
-        <SafeAreaView> 
+        <SafeAreaView>
           <Header />
         </SafeAreaView>
         <ScrollView
@@ -69,23 +83,32 @@ export default function MainScreen() {
           onScroll={handleScroll}
           scrollEventThrottle={16}
           onContentSizeChange={() => {
-            // if (isUserAtBottom.current) scrollToBottom(); // вот так было - из-за этого скролл происходил только когда юзер уже был внизу 
-            scrollToBottom(); // убрал условие чтобы скроллилось вниз всегда при отправке сообщений независимо от того где был пользователь 
+            // if (isUserAtBottom.current) scrollToBottom(); // вот так было - из-за этого скролл происходил только когда юзер уже был внизу
+            scrollToBottom(); // убрал условие чтобы скроллилось вниз всегда при отправке сообщений независимо от того где был пользователь
           }}
         >
           {messages.map((message) => (
             <Message key={message.messageId} {...message} />
           ))}
+          <Message type="theirs" messageId="1" message="Привет!" time="12:00" />
         </ScrollView>
 
         {/* Контейнер для кнопки, чтобы она не скрывалась за клавиатурой */}
         <View>
           {showScrollButton && (
-            <TouchableOpacity style={styles.scrollButton} onPress={scrollToBottom}>
+            <TouchableOpacity
+              style={styles.scrollButton}
+              onPress={scrollToBottom}
+            >
               <Text style={styles.scrollButtonText}>⬇</Text>
             </TouchableOpacity>
           )}
-          <Input input={input} setInput={setInput} messages={messages} setMessages={setMessages} />
+          <Input
+            input={input}
+            setInput={setInput}
+            messages={messages}
+            setMessages={setMessages}
+          />
         </View>
       </KeyboardAvoidingView>
     </View>
