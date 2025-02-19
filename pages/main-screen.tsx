@@ -1,203 +1,117 @@
-import React from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   View,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  TouchableWithoutFeedback,
   Keyboard,
+  Text,
+  TouchableOpacity,
 } from "react-native";
 import { Input } from "../components/Input";
 import Message from "../components/Message";
-import { useState } from "react";
 import messageInterface from "../types/utils";
-import { useEffect, useRef } from "react"; // чтобы был скролл
-import { useNavigation } from "@react-navigation/native";
-import { createStackNavigator } from "@react-navigation/stack";
-import { NavigationContainer } from "@react-navigation/native";
-import PrefersHomeIndicatorAutoHidden, { HomeIndicator } from "react-native-home-indicator";
-import { SafeAreaView } from "react-native-safe-area-context"; // хуйня чтобы шапка не вылезала за пределы экрана
-import { Text, TouchableOpacity } from "react-native";
 import { Header } from "../components/Header";
-// главный экран чата
+import { SafeAreaView } from "react-native-safe-area-context";
+
 export default function MainScreen() {
-  // массив сообщенийs
   const [messages, setMessages] = useState<messageInterface[]>([]);
-  // хранит текст введенный в поле ввода
   const [input, setInput] = useState<string>("");
-  const navigation = useNavigation();
   const scrollViewRef = useRef<ScrollView>(null);
-  const viewRef = useRef<View>(null);
-  const [containerHeight, setContainerHeight] = useState(0);
+  const [showScrollButton, setShowScrollButton] = useState(false);
+  const isAutoScrolling = useRef(false);
+  const isUserAtBottom = useRef(true);
 
   useEffect(() => {
-<<<<<<< HEAD
-    scrollViewRef.current?.scrollToEnd({ animated: true, })
-  }, [messages])
-  
-=======
-    const keyboardDidHideListener = Keyboard.addListener(
-      "keyboardDidHide",
-      () => {
-        // Запрашиваем актуальные размеры контейнера
-        viewRef.current?.measure((x, y, width, height) => {
-          setContainerHeight(height);
-          scrollViewRef.current?.scrollToEnd({ animated: true });
-        });
-      }
-    );
-    return () => {
-      keyboardDidHideListener.remove();
-    };
-  }, []);
+    if (messages.length === 0 || !isUserAtBottom.current) return;
+    scrollToBottom();
+  }, [messages]);
 
-  const [showScrollButton, setShowScrollButton] = useState(false);
-  const isAutoScrolling = useRef(false); // Флаг для отслеживания автоскролла
+  const handleScroll = useCallback((event: any) => {
+    const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
+    const isAtBottom = contentOffset.y + layoutMeasurement.height >= contentSize.height - 10;
 
-  const handleScroll = (event: any) => {
-    const offsetY = event.nativeEvent.contentOffset.y;
-    const visibleHeight = event.nativeEvent.layoutMeasurement.height;
-    const contentTotalHeight = event.nativeEvent.contentSize.height;
-
-    // Более точное определение достижения низа
-    const isAtBottom = offsetY + visibleHeight >= contentTotalHeight - 1;
-
-    // Игнорируем события во время автоскролла
-    if (!isAutoScrolling.current) {
+    if (isAtBottom !== isUserAtBottom.current) {
+      isUserAtBottom.current = isAtBottom;
       setShowScrollButton(!isAtBottom);
     }
-  };
+  }, []);
 
-  const handleMomentumScrollEnd = () => {
-    // После завершения инерционной прокрутки
-    isAutoScrolling.current = false;
-  };
-
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     isAutoScrolling.current = true;
-    setShowScrollButton(false); // Сразу скрываем кнопку
+    setShowScrollButton(false);
     scrollViewRef.current?.scrollToEnd({ animated: true });
 
     setTimeout(() => {
       isAutoScrolling.current = false;
-    }, 500); // Увеличиваем задержку для анимации
-  };
-
-  // Обновленный useEffect для сообщений
-  useEffect(() => {
-    if (messages.length === 0) return;
-
-    isAutoScrolling.current = true;
-    scrollViewRef.current?.scrollToEnd({ animated: true });
-
-    // Убираем принудительное скрытие кнопки здесь
-    const timer = setTimeout(() => {
-      isAutoScrolling.current = false;
     }, 500);
-
-    return () => clearTimeout(timer);
-  }, [messages]);
->>>>>>> main
+  }, []);
 
   return (
+    <View style={styles.safeContainer}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.container}
-        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
       >
-<<<<<<< HEAD
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={styles.innerContainer}>  
-            <Header />
-            <ScrollView style={styles.messageContainer} ref={scrollViewRef}>
-              {messages.map((message) => (
-                <Message key={message.messageId} {...message} />
-              ))}
-            </ScrollView>
-            <Input
-              input={input}
-              setInput={setInput}
-              messages={messages}
-              setMessages={setMessages}
-            />
-          </View>
-        </TouchableWithoutFeedback>
-=======
-        <View
-          style={styles.innerContainer}
-          ref={viewRef}
-          onLayout={() => {
-            scrollViewRef.current?.scrollToEnd({ animated: true });
+        <Header />
+        <ScrollView
+          ref={scrollViewRef}
+          style={styles.messageContainer}
+          keyboardShouldPersistTaps="handled"
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+          onContentSizeChange={() => {
+            if (isUserAtBottom.current) scrollToBottom();
           }}
         >
-          <Header />
-          <ScrollView
-            style={[styles.messageContainer, { height: containerHeight }]}
-            ref={scrollViewRef}
-            keyboardShouldPersistTaps="handled"
-            onContentSizeChange={() => {
-              // Добавляем проверку позиции при изменении контента
-              scrollViewRef.current?.scrollToEnd({ animated: true });
-            }}
-            onScroll={handleScroll}
-            onMomentumScrollEnd={handleMomentumScrollEnd}
-            scrollEventThrottle={16} // Более частая частота обновления
-          >
-            {messages.map((message) => (
-              <Message key={message.messageId} {...message} />
-            ))}
-          </ScrollView>
+          {messages.map((message) => (
+            <Message key={message.messageId} {...message} />
+          ))}
+        </ScrollView>
 
+        {/* Контейнер для кнопки, чтобы она не скрывалась за клавиатурой */}
+        <View>
           {showScrollButton && (
-            <TouchableOpacity
-              style={styles.scrollButton}
-              onPress={scrollToBottom}
-            >
-              <Text style={styles.scrollButtonText}>▼</Text>
+            <TouchableOpacity style={styles.scrollButton} onPress={scrollToBottom}>
+              <Text style={styles.scrollButtonText}>⬇</Text>
             </TouchableOpacity>
           )}
-
-          <Input
-            input={input}
-            setInput={setInput}
-            messages={messages}
-            setMessages={setMessages}
-          />
+          <Input input={input} setInput={setInput} messages={messages} setMessages={setMessages} />
         </View>
->>>>>>> main
       </KeyboardAvoidingView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeContainer: {
     flex: 1,
     backgroundColor: "#934CC2",
   },
-  innerContainer: {
+  container: {
     flex: 1,
-    justifyContent: "space-between",
   },
   messageContainer: {
-    // backgroundColor: "white",
     flex: 1,
     padding: 10,
   },
   scrollButton: {
     position: "absolute",
-    left: 20,
-    bottom: 100,
+    right: 20,
+    bottom: 80, // Подняли кнопку выше
     backgroundColor: "rgba(0,0,0,0.7)",
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: "center",
     alignItems: "center",
+    elevation: 5,
+    zIndex: 10, // Убедимся, что кнопка поверх всего
+    paddingBottom: Platform.OS === "ios" ? 10 : 0,
   },
   scrollButtonText: {
-    color: "black",
-    fontSize: 20,
-    marginTop: -3,
+    color: "white",
+    fontSize: 22,
   },
 });

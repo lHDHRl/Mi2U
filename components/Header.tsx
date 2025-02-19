@@ -1,17 +1,5 @@
-// Шапка приложения
-import React, { useCallback } from "react";
-import {
-  View,
-  TextInput,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Keyboard,
-  SafeAreaView,
-} from "react-native";
-import messageInterface from "../types/utils";
+import { Text, StyleSheet, SafeAreaView } from "react-native";
 
-// Шапка приложения
 export function Header() {
   return (
     <SafeAreaView style={headerStyle.container}>
@@ -29,8 +17,9 @@ const headerStyle = StyleSheet.create({
     alignItems: "center",
   },
   text: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "bold",
     color: "#B8B2EF",
+    textAlign: "center",
   },
 });

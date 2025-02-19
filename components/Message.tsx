@@ -1,38 +1,49 @@
+import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-// сообщение отправляемое пользователями
-export default function Message(props: {
-  type: "yours" | "theirs"; // сообщения бывают двух типов: отправленные тобой; другими пользователями
-  messageId: string; 
+// Типизация пропсов
+interface MessageProps {
+  type: "yours" | "theirs"; // Тип сообщения
+  messageId: string;
   message: string;
-  time: string; // время отправки сообщения 
-  answerTo?: string; // опциональный аргумент - указывает является ли сообщение ответом кому либо (должен указывать на id)
-}) {
-  const { type, messageId, message, time, answerTo } = props;
+  time: string;
+  answerTo?: string; // ID сообщения, на которое идет ответ (опционально)
+}
 
-  const isYours = type === "yours"; // в зависимости от результата проверки будет зависеть стилизация данного компонента
+const Message: React.FC<MessageProps> = ({ type, messageId, message, time, answerTo }) => {
+  const isYours = type === "yours"; // Определяем тип сообщения
 
   return (
     <View style={isYours ? styles.yourContainer : styles.theirContainer}>
+      {/* Блок ответа на сообщение */}
       {answerTo && (
-        <Text style={isYours ? styles.yourAnswerTo : styles.theirAnswerTo}>
-          {answerTo}
+        <Text
+          style={isYours ? styles.yourAnswerTo : styles.theirAnswerTo}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+        >
+          Ответ на: {answerTo}
         </Text>
       )}
+      {/* Основной текст сообщения */}
       <Text style={styles.message}>{message}</Text>
+      {/* Время отправки */}
       <Text style={styles.time}>{time}</Text>
-      <Text style={styles.messageId}>{messageId}</Text>
+      
+      {/* Message ID (только в DEV-режиме) */}
+      {__DEV__ && <Text style={styles.messageId}>{messageId}</Text>}
     </View>
   );
-}
+};
 
+// Стили
 const styles = StyleSheet.create({
   yourContainer: {
     alignSelf: "flex-end",
     marginBottom: 15,
-    width: 180,
+    maxWidth: "75%", // Адаптивная ширина
     backgroundColor: "#52B788",
-    padding: 8,
+    padding: 10,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     borderBottomLeftRadius: 20,
@@ -40,9 +51,9 @@ const styles = StyleSheet.create({
   theirContainer: {
     alignSelf: "flex-start",
     marginBottom: 15,
-    width: 180,
+    maxWidth: "75%", // Адаптивная ширина
     backgroundColor: "#958ED2",
-    padding: 8,
+    padding: 10,
     borderTopRightRadius: 20,
     borderBottomRightRadius: 20,
     borderTopLeftRadius: 20,
@@ -53,6 +64,9 @@ const styles = StyleSheet.create({
     borderLeftWidth: 2,
     borderRadius: 5,
     borderLeftColor: "#498467",
+    color: "#1E5245", // Сделал текст читаемым
+    fontSize: 12,
+    marginBottom: 5,
   },
   theirAnswerTo: {
     backgroundColor: "#B8B2EF",
@@ -60,18 +74,26 @@ const styles = StyleSheet.create({
     borderLeftWidth: 2,
     borderRadius: 5,
     borderLeftColor: "#934CC2",
+    color: "#4A3A78", // Сделал текст читаемым
+    fontSize: 12,
+    marginBottom: 5,
   },
   messageId: {
     fontWeight: "500",
     fontSize: 8,
     textAlign: "right",
+    color: "#BBBBBB",
   },
   message: {
-    color: "#E3E3E3",
+    color: "#FFFFFF",
+    fontSize: 16,
   },
   time: {
     color: "#E3E3E3",
     textAlign: "right",
-    fontSize: 8,
+    fontSize: 10,
+    marginTop: 5,
   },
 });
+
+export default Message;
