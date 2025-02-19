@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 // Типизация пропсов
 interface MessageProps {
@@ -12,6 +13,32 @@ interface MessageProps {
 
 const Message: React.FC<MessageProps> = ({ type, messageId, message, time, answerTo }) => {
   const isYours = type === "yours"; // Определяем тип сообщения
+
+  const handleOnPress = () => {
+    console.log(`${message} has been touched`)
+  }
+
+  // return (
+  //   <TouchableWithoutFeedback style={isYours ? styles.yourContainer : styles.theirContainer} onPress={handleOnPress}>
+  //     {/* Блок ответа на сообщение */}
+  //     {answerTo && (
+  //       <Text
+  //         style={isYours ? styles.yourAnswerTo : styles.theirAnswerTo}
+  //         numberOfLines={1}
+  //         ellipsizeMode="tail"
+  //       >
+  //         Ответ на: {answerTo}
+  //       </Text>
+  //     )}
+  //     {/* Основной текст сообщения */}
+  //     <Text style={styles.message}>{message}</Text>
+  //     {/* Время отправки */}
+  //     <Text style={styles.time}>{time}</Text>
+
+  //     {/* Message ID (только в DEV-режиме) */}
+  //     {__DEV__ && <Text style={styles.messageId}>{messageId}</Text>}
+  //   </TouchableWithoutFeedback>
+  // );
 
   return (
     <View style={isYours ? styles.yourContainer : styles.theirContainer}>
@@ -29,7 +56,7 @@ const Message: React.FC<MessageProps> = ({ type, messageId, message, time, answe
       <Text style={styles.message}>{message}</Text>
       {/* Время отправки */}
       <Text style={styles.time}>{time}</Text>
-      
+
       {/* Message ID (только в DEV-режиме) */}
       {__DEV__ && <Text style={styles.messageId}>{messageId}</Text>}
     </View>

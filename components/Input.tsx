@@ -8,6 +8,8 @@ import {
   SafeAreaView,
 } from "react-native";
 import messageInterface from "../types/utils";
+import { v4 as uuidv4 } from "uuid";
+import "react-native-get-random-values";
 
 // Определяем типы пропсов  
 interface Props {
@@ -35,7 +37,7 @@ export const Input: React.FC<Props> = ({ input, setInput, messages, setMessages 
       ...prevMessages,
       {
         type: "yours",
-        messageId: Date.now().toString(), // Можно заменить на `uuid`
+        messageId: uuidv4(), // Можно заменить на `uuid` (upd: заменил на uuidv4)
         message: trimmedInput,
         time: formatTime(),
       },

@@ -23,15 +23,14 @@ export default function MainScreen() {
   const isAutoScrolling = useRef(false);
   const isUserAtBottom = useRef(true);
 
-  useEffect(() => {
+  useEffect(() => { // как только изменяется массив с сообщениями скроллится вниз
     if (messages.length === 0 || !isUserAtBottom.current) return;
     scrollToBottom();
   }, [messages]);
 
   const handleScroll = useCallback((event: any) => {
     const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
-    const isAtBottom = contentOffset.y + layoutMeasurement.height >= contentSize.height - 10;
-
+    const isAtBottom = contentOffset.y + layoutMeasurement.height >= contentSize.height - 10; // чз за 10 почему откуда (это типа паддинг у месседж контейнера?)
     if (isAtBottom !== isUserAtBottom.current) {
       isUserAtBottom.current = isAtBottom;
       setShowScrollButton(!isAtBottom);
@@ -48,13 +47,21 @@ export default function MainScreen() {
     }, 500);
   }, []);
 
+  // для удаления сообщений по id 
+  const deleteMessage = (id: string) => {
+    setMessages(prevMessages => prevMessages.filter(message => message.messageId !== id));
+  }
+
   return (
     <View style={styles.safeContainer}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.container}
       >
-        <Header />
+        {/* по совету дани чтобы хедер не залазил на шапку телефона */}
+        <SafeAreaView> 
+          <Header />
+        </SafeAreaView>
         <ScrollView
           ref={scrollViewRef}
           style={styles.messageContainer}
@@ -62,7 +69,8 @@ export default function MainScreen() {
           onScroll={handleScroll}
           scrollEventThrottle={16}
           onContentSizeChange={() => {
-            if (isUserAtBottom.current) scrollToBottom();
+            // if (isUserAtBottom.current) scrollToBottom(); // вот так было - из-за этого скролл происходил только когда юзер уже был внизу 
+            scrollToBottom(); // убрал условие чтобы скроллилось вниз всегда при отправке сообщений независимо от того где был пользователь 
           }}
         >
           {messages.map((message) => (
@@ -99,7 +107,7 @@ const styles = StyleSheet.create({
   scrollButton: {
     position: "absolute",
     right: 20,
-    bottom: 80, // Подняли кнопку выше
+    bottom: Platform.OS === "ios" ? 105 : 90, // Подняли кнопку выше
     backgroundColor: "rgba(0,0,0,0.7)",
     width: 44,
     height: 44,
@@ -108,7 +116,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     elevation: 5,
     zIndex: 10, // Убедимся, что кнопка поверх всего
-    paddingBottom: Platform.OS === "ios" ? 10 : 0,
+    // paddingBottom: Platform.OS === "ios" ? 10 : 0, // от этого кнопка вниз вытягивалась вниз
   },
   scrollButtonText: {
     color: "white",
