@@ -28,20 +28,20 @@ const Message: React.FC<MessageProps> = ({
   replyText,
   onLongPress,
 }) => {
-  const isYours = type === "yours"; // Определяем тип сообщения
+  const isYours = type === "yours";
 
   const handleDoubleTap = useDoubleTap(() => {
     if (type === "theirs") {
-      setReplyMessage({ type, messageId, message, time }); // Устанавливаем сообщение для reply
+      setReplyMessage({ type, messageId, message, time });
     }
   });
 
   return (
     <TouchableWithoutFeedback
-      onPress={handleDoubleTap} // Двойное нажатие для reply
+      onPress={handleDoubleTap}
       onLongPress={() => {
         if (type === "yours" && onLongPress) {
-          onLongPress(); // Вызываем переданный обработчик долгого нажатия
+          onLongPress();
         }
       }}
     >

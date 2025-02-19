@@ -17,10 +17,11 @@ interface Props {
   setInput: React.Dispatch<React.SetStateAction<string>>;
   messages: messageInterface[];
   setMessages: React.Dispatch<React.SetStateAction<messageInterface[]>>;
-  replyMessage: messageInterface | null; // Добавляем replyMessage
+  replyMessage: messageInterface | null;
   setReplyMessage: React.Dispatch<
     React.SetStateAction<messageInterface | null>
-  >; // Добавляем setReplyMessage
+  >;
+  sendMessageToServer: (message: messageInterface) => void;
 }
 
 // Компонент ввода сообщения
@@ -29,8 +30,9 @@ export const Input: React.FC<Props> = ({
   setInput,
   messages,
   setMessages,
-  replyMessage, // Добавляем replyMessage
-  setReplyMessage, // Добавляем setReplyMessage
+  replyMessage,
+  sendMessageToServer,
+  setReplyMessage,
 }) => {
   const handleOnChangeText = useCallback(
     (text: string) => setInput(text),
@@ -45,24 +47,31 @@ export const Input: React.FC<Props> = ({
     });
   }, []);
 
+  // В этой функции написан пиздец желательно переделать нахуй тут все
   const onSubmitEditing = useCallback(() => {
     const trimmedInput = input.trim();
     if (!trimmedInput) return;
 
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      {
-        type: "yours",
-        messageId: uuidv4(),
-        message: trimmedInput,
-        time: formatTime(),
-        replyText: replyMessage?.message || undefined, // Добавляем текст сообщения, на которое отвечаем
-      },
-    ]);
+    const newMessage = {
+      type: "yours" as const,
+      messageId: uuidv4(),
+      message: trimmedInput,
+      time: formatTime(),
+      replyText: replyMessage?.message || undefined,
+    };
 
-    setInput(""); // Очищаем поле ввода
-    setReplyMessage(null); // Сбрасываем reply после отправки
-  }, [input, setMessages, setInput, formatTime, replyMessage]);
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
+    setInput("");
+    sendMessageToServer(newMessage);
+    setReplyMessage(null);
+  }, [
+    input,
+    setMessages,
+    setInput,
+    formatTime,
+    replyMessage,
+    sendMessageToServer,
+  ]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -88,7 +97,7 @@ export const Input: React.FC<Props> = ({
           style={styles.textInput}
           multiline
           placeholder="Напишите сообщение..."
-          placeholderTextColor="#A9A9A9" // Чуть светлее для комфорта
+          placeholderTextColor="#A9A9A9"
           value={input}
           onChangeText={handleOnChangeText}
         />

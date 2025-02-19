@@ -15,6 +15,7 @@ import messageInterface from "../types/utils";
 import { Header } from "../components/Header";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Alert } from "react-native";
+import axios from "axios";
 
 export default function MainScreen() {
   const [messages, setMessages] = useState<messageInterface[]>([]);
@@ -30,6 +31,17 @@ export default function MainScreen() {
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(
     null
   ); // ID выбранного сообщения
+
+  // Еще хочется добавить что в коде уже происходит пиздец и его бы разделить
+  //Взаимодействие с беком (непотерять, работает локально ток у меня)
+  const sendMessageToServer = async (message: messageInterface) => {
+    try {
+      await axios.post("http://192.168.183.158:8080/send", message); // если кто вдруг тестить будет поменяйте тут на свой ipconfig ipv4 wlan device
+      console.log("Message sent to server:", message);
+    } catch (error) {
+      console.error("Failed to send message to server:", error);
+    }
+  };
 
   useEffect(() => {
     // как только изменяется массив с сообщениями скроллится вниз
@@ -158,6 +170,7 @@ export default function MainScreen() {
             setMessages={setMessages}
             replyMessage={replyMessage}
             setReplyMessage={setReplyMessage}
+            sendMessageToServer={sendMessageToServer}
           />
         </View>
       </KeyboardAvoidingView>
