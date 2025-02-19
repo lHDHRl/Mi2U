@@ -9,6 +9,7 @@ import {
 import * as SplashScreen from "expo-splash-screen";
 import StartScreen from "./pages/start-screen";
 import MainScreen from "./pages/main-screen";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -47,8 +48,10 @@ export default function App() {
   );
 
   return (
-    <NavigationContainer>
-      {fontsLoaded ? stackNavigator : <></>}
-    </NavigationContainer>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <NavigationContainer>
+        {fontsLoaded ? stackNavigator : <></>}
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
 }

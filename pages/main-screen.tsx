@@ -22,6 +22,9 @@ export default function MainScreen() {
   const [showScrollButton, setShowScrollButton] = useState(false);
   const isAutoScrolling = useRef(false);
   const isUserAtBottom = useRef(true);
+  const [replyMessage, setReplyMessage] = useState<messageInterface | null>(
+    null
+  );
 
   useEffect(() => {
     // как только изменяется массив с сообщениями скроллится вниз
@@ -31,7 +34,7 @@ export default function MainScreen() {
 
   const handleScroll = useCallback((event: any) => {
     const { contentOffset, layoutMeasurement, contentSize } = event.nativeEvent;
-    const THRESHOLD = 250; // Высота нескольких сообщений, т.е. кнопка появляется после того как пользователь находится на какой то высоте от конца
+    const THRESHOLD = 150; // Высота нескольких сообщений, т.е. кнопка появляется после того как пользователь
     const isAtBottom =
       contentOffset.y + layoutMeasurement.height >= contentSize.height - 10;
     const isNearBottom =
@@ -39,7 +42,7 @@ export default function MainScreen() {
       contentSize.height - THRESHOLD;
 
     if (isAtBottom !== isUserAtBottom.current) {
-      isUserAtBottom.current = isAtBottom; // уверен что где то понадообится потом
+      isUserAtBottom.current = isAtBottom;
     }
 
     if (!isNearBottom) {
@@ -88,9 +91,19 @@ export default function MainScreen() {
           }}
         >
           {messages.map((message) => (
-            <Message key={message.messageId} {...message} />
+            <Message
+              key={message.messageId}
+              {...message}
+              setReplyMessage={setReplyMessage} // Передаем setReplyMessage
+            />
           ))}
-          <Message type="theirs" messageId="1" message="Привет!" time="12:00" />
+          <Message
+            type="theirs"
+            messageId="228"
+            message="Привет! Как дела? Я хочу рассказать историю как я попал в зомба апокалипсис прикинь да"
+            time="12:00"
+            setReplyMessage={setReplyMessage}
+          />
         </ScrollView>
 
         {/* Контейнер для кнопки, чтобы она не скрывалась за клавиатурой */}
@@ -108,6 +121,8 @@ export default function MainScreen() {
             setInput={setInput}
             messages={messages}
             setMessages={setMessages}
+            replyMessage={replyMessage}
+            setReplyMessage={setReplyMessage}
           />
         </View>
       </KeyboardAvoidingView>

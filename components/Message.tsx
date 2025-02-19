@@ -1,65 +1,58 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import { useDoubleTap } from "../hooks/useDoubleTap";
+import messageInterface from "../types/utils";
 
-// Типизация пропсов
 interface MessageProps {
   type: "yours" | "theirs"; // Тип сообщения
-  messageId: string;
-  message: string;
-  time: string;
+  messageId: string; // Уникальный ID сообщения
+  message: string; // Текст сообщения
+  time: string; // Время отправки
   answerTo?: string; // ID сообщения, на которое идет ответ (опционально)
+  setReplyMessage: React.Dispatch<
+    React.SetStateAction<messageInterface | null>
+  >; // Функция для установки reply
+  replyText?: string; // Текст сообщения, на которое идет ответ (опционально)
 }
 
-const Message: React.FC<MessageProps> = ({ type, messageId, message, time, answerTo }) => {
+const Message: React.FC<MessageProps> = ({
+  type,
+  messageId,
+  message,
+  time,
+  answerTo,
+  setReplyMessage,
+  replyText,
+}) => {
   const isYours = type === "yours"; // Определяем тип сообщения
 
-  const handleOnPress = () => {
-    console.log(`${message} has been touched`)
-  }
-
-  // return (
-  //   <TouchableWithoutFeedback style={isYours ? styles.yourContainer : styles.theirContainer} onPress={handleOnPress}>
-  //     {/* Блок ответа на сообщение */}
-  //     {answerTo && (
-  //       <Text
-  //         style={isYours ? styles.yourAnswerTo : styles.theirAnswerTo}
-  //         numberOfLines={1}
-  //         ellipsizeMode="tail"
-  //       >
-  //         Ответ на: {answerTo}
-  //       </Text>
-  //     )}
-  //     {/* Основной текст сообщения */}
-  //     <Text style={styles.message}>{message}</Text>
-  //     {/* Время отправки */}
-  //     <Text style={styles.time}>{time}</Text>
-
-  //     {/* Message ID (только в DEV-режиме) */}
-  //     {__DEV__ && <Text style={styles.messageId}>{messageId}</Text>}
-  //   </TouchableWithoutFeedback>
-  // );
+  const handleDoubleTap = useDoubleTap(() => {
+    if (type === "theirs") {
+      setReplyMessage({ type, messageId, message, time }); // Устанавливаем сообщение для reply
+    }
+  });
 
   return (
-    <View style={isYours ? styles.yourContainer : styles.theirContainer}>
-      {/* Блок ответа на сообщение */}
-      {answerTo && (
-        <Text
-          style={isYours ? styles.yourAnswerTo : styles.theirAnswerTo}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-        >
-          Ответ на: {answerTo}
-        </Text>
-      )}
-      {/* Основной текст сообщения */}
-      <Text style={styles.message}>{message}</Text>
-      {/* Время отправки */}
-      <Text style={styles.time}>{time}</Text>
-
-      {/* Message ID (только в DEV-режиме) */}
-      {__DEV__ && <Text style={styles.messageId}>{messageId}</Text>}
-    </View>
+    <TouchableWithoutFeedback onPress={handleDoubleTap}>
+      <View style={isYours ? styles.yourContainer : styles.theirContainer}>
+        {/* Блок ответа на сообщение */}
+        {replyText && (
+          <Text
+            style={isYours ? styles.yourAnswerTo : styles.theirAnswerTo}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            Ответ на:{" "}
+            {replyText.length > 20 ? `${replyText.slice(0, 20)}...` : replyText}
+          </Text>
+        )}
+        {/* Основной текст сообщения */}
+        <Text style={styles.message}>{message}</Text>
+        {/* Время отправки */}
+        <Text style={styles.time}>{time}</Text>
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 

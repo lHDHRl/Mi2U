@@ -11,24 +11,40 @@ import messageInterface from "../types/utils";
 import { v4 as uuidv4 } from "uuid";
 import "react-native-get-random-values";
 
-// Определяем типы пропсов  
+// Определяем типы пропсов
 interface Props {
   input: string;
   setInput: React.Dispatch<React.SetStateAction<string>>;
   messages: messageInterface[];
   setMessages: React.Dispatch<React.SetStateAction<messageInterface[]>>;
+  replyMessage: messageInterface | null; // Добавляем replyMessage
+  setReplyMessage: React.Dispatch<
+    React.SetStateAction<messageInterface | null>
+  >; // Добавляем setReplyMessage
 }
 
-// Компонент ввода сообщения  
-export const Input: React.FC<Props> = ({ input, setInput, messages, setMessages }) => {
-  const handleOnChangeText = useCallback((text: string) => setInput(text), [setInput]);
+// Компонент ввода сообщения
+export const Input: React.FC<Props> = ({
+  input,
+  setInput,
+  messages,
+  setMessages,
+  replyMessage, // Добавляем replyMessage
+  setReplyMessage, // Добавляем setReplyMessage
+}) => {
+  const handleOnChangeText = useCallback(
+    (text: string) => setInput(text),
+    [setInput]
+  );
 
-  // Формат времени  
+  // Формат времени
   const formatTime = useCallback((): string => {
-    return new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+    return new Date().toLocaleTimeString("ru-RU", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   }, []);
 
-  // Отправка сообщения  
   const onSubmitEditing = useCallback(() => {
     const trimmedInput = input.trim();
     if (!trimmedInput) return;
@@ -37,17 +53,36 @@ export const Input: React.FC<Props> = ({ input, setInput, messages, setMessages 
       ...prevMessages,
       {
         type: "yours",
-        messageId: uuidv4(), // Можно заменить на `uuid` (upd: заменил на uuidv4)
+        messageId: uuidv4(),
         message: trimmedInput,
         time: formatTime(),
+        replyText: replyMessage?.message || undefined, // Добавляем текст сообщения, на которое отвечаем
       },
     ]);
 
     setInput(""); // Очищаем поле ввода
-  }, [input, setMessages, setInput, formatTime]);
+    setReplyMessage(null); // Сбрасываем reply после отправки
+  }, [input, setMessages, setInput, formatTime, replyMessage]);
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Отображение reply */}
+      {replyMessage && (
+        <View style={styles.replyContainer}>
+          <Text style={styles.replyText}>
+            Ответ на:{" "}
+            {replyMessage.message
+              ? replyMessage.message.length > 20
+                ? `${replyMessage.message.slice(0, 20)}...`
+                : replyMessage.message
+              : "Сообщение недоступно"}
+          </Text>
+          <TouchableOpacity onPress={() => setReplyMessage(null)}>
+            <Text style={styles.cancelReply}>✕</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+      {/* Поле ввода */}
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.textInput}
@@ -57,7 +92,11 @@ export const Input: React.FC<Props> = ({ input, setInput, messages, setMessages 
           value={input}
           onChangeText={handleOnChangeText}
         />
-        <TouchableOpacity onPress={onSubmitEditing} style={styles.button} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+        <TouchableOpacity
+          onPress={onSubmitEditing}
+          style={styles.button}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
           <Text style={styles.buttonText}>{">"}</Text>
         </TouchableOpacity>
       </View>
@@ -65,8 +104,26 @@ export const Input: React.FC<Props> = ({ input, setInput, messages, setMessages 
   );
 };
 
-// Стили  
+// Стили
 const styles = StyleSheet.create({
+  replyContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 8,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  replyText: {
+    flex: 1,
+    fontSize: 14,
+    color: "#666",
+  },
+  cancelReply: {
+    fontSize: 16,
+    color: "#999",
+    marginLeft: 8,
+  },
   container: {
     backgroundColor: "white",
     width: "100%",
