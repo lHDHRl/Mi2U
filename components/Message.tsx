@@ -1,8 +1,9 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { useDoubleTap } from "../hooks/useDoubleTap";
 import messageInterface from "../types/utils";
+import { GestureResponderEvent } from "react-native";
 
 // Типизация пропсов
 interface MessageProps {
@@ -15,7 +16,7 @@ interface MessageProps {
     React.SetStateAction<messageInterface | null>
   >; // Функция для установки reply
   replyText?: string; // Текст сообщения, на которое идет ответ (опционально)
-  onLongPress?: () => void; // Новый пропс для долгого нажатия
+  handleLongPress?: (event: GestureResponderEvent, messageId: string) => void; // Новый пропс для долгого нажатия (upd from vstaff: переделал вид хендлера - у него появились аргументы)
 }
 
 const Message: React.FC<MessageProps> = ({
@@ -26,10 +27,11 @@ const Message: React.FC<MessageProps> = ({
   answerTo,
   setReplyMessage,
   replyText,
-  onLongPress,
+  handleLongPress,
 }) => {
   const isYours = type === "yours";
 
+  // при двойном таппе по чужопу сообщению пользователь отвечает на него
   const handleDoubleTap = useDoubleTap(() => {
     if (type === "theirs") {
       setReplyMessage({ type, messageId, message, time });
@@ -37,11 +39,12 @@ const Message: React.FC<MessageProps> = ({
   });
 
   return (
-    <TouchableWithoutFeedback
+    <TouchableOpacity
+      activeOpacity={0.9}
       onPress={handleDoubleTap}
-      onLongPress={() => {
-        if (type === "yours" && onLongPress) {
-          onLongPress();
+      onLongPress={(event: GestureResponderEvent) => {
+        if (type === "yours" && handleLongPress) {
+          handleLongPress(event, messageId);
         }
       }}
     >
@@ -62,7 +65,7 @@ const Message: React.FC<MessageProps> = ({
         {/* Время отправки */}
         <Text style={styles.time}>{time}</Text>
       </View>
-    </TouchableWithoutFeedback>
+    </TouchableOpacity>
   );
 };
 

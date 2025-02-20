@@ -8,6 +8,7 @@ import {
   Keyboard,
   Text,
   TouchableOpacity,
+  GestureResponderEvent,
 } from "react-native";
 import { Input } from "../components/Input";
 import Message from "../components/Message";
@@ -16,12 +17,14 @@ import { Header } from "../components/Header";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Alert } from "react-native";
 import axios from "axios";
+import MessagePopup from "../components/MessagePopup";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 export default function MainScreen() {
-  const [messages, setMessages] = useState<messageInterface[]>([]);
-  const [input, setInput] = useState<string>("");
-  const scrollViewRef = useRef<ScrollView>(null);
-  const [showScrollButton, setShowScrollButton] = useState(false);
+  const [messages, setMessages] = useState<messageInterface[]>([]); // массив сообщений
+  const [input, setInput] = useState<string>(""); // поле ввода
+  const scrollViewRef = useRef<ScrollView>(null); // для кнопки скролла вниз
+  const [showScrollButton, setShowScrollButton] = useState(false); // отображение кнопки скролла вниз
   const isAutoScrolling = useRef(false);
   const isUserAtBottom = useRef(true);
   const [replyMessage, setReplyMessage] = useState<messageInterface | null>(
@@ -32,11 +35,14 @@ export default function MainScreen() {
     null
   ); // ID выбранного сообщения
 
+  const [coordinates, setCoordinates] = useState({ x: 0, y: 0 }); // координаты касания пользователя
+  const [isMessagePopupTouched, setIsMessagePopupTouched] = useState(false);
+
   // Еще хочется добавить что в коде уже происходит пиздец и его бы разделить
   //Взаимодействие с беком (непотерять, работает локально ток у меня)
   const sendMessageToServer = async (message: messageInterface) => {
     try {
-      await axios.post("http://192.168.183.158:8080/send", message); // если кто вдруг тестить будет поменяйте тут на свой ipconfig ipv4 wlan device
+      await axios.post("http://192.168.1.48/send", message); // если кто вдруг тестить будет поменяйте тут на свой ipconfig ipv4 wlan device
       console.log("Message sent to server:", message);
     } catch (error) {
       console.error("Failed to send message to server:", error);
@@ -69,10 +75,17 @@ export default function MainScreen() {
     }
   }, []);
 
-  const handleLongPress = (messageId: string) => {
-    setSelectedMessageId(messageId); // Сохраняем ID выбранного сообщения
-    showDeleteMenu(); // Показываем меню
+  const handleLongPress = (event: GestureResponderEvent, messageId: string) => {
+    // setSelectedMessageId(messageId); // Сохраняем ID выбранного сообщения
+    // showDeleteMenu(); // Показываем меню
+    console.log("main-screen handleLongPress");
+    const { pageX, pageY, locationX, locationY } = event.nativeEvent;
+    // setCoordinates({ x: pageX, y: pageY });
+    console.log(locationX, locationY);
+    setCoordinates({ x: locationX, y: locationY });
+    setSelectedMessageId(messageId);
   };
+  const closeMessagePopup = () => setSelectedMessageId(null);
 
   const scrollToBottom = useCallback(() => {
     isAutoScrolling.current = true;
@@ -116,7 +129,10 @@ export default function MainScreen() {
   };
 
   return (
-    <View style={styles.safeContainer}>
+    <View
+      // onTouchStart={() => closeMessagePopup()}
+      style={styles.safeContainer}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.container}
@@ -138,12 +154,26 @@ export default function MainScreen() {
         >
           {messages.map((message) => (
             <Message
-              key={message.messageId}
               {...message}
+              key={message.messageId}
               setReplyMessage={setReplyMessage}
-              onLongPress={() => handleLongPress(message.messageId)} // Передаем обработчик долгого нажатия
+              handleLongPress={(event) => {
+                console.log(
+                  messages.find((m) => m.messageId === message.messageId)
+                    ?.message
+                );
+                handleLongPress(event, message.messageId);
+              }} // Передаем обработчик долгого нажатия
             />
           ))}
+          {selectedMessageId && (
+            <MessagePopup
+              x={coordinates.x}
+              y={coordinates.y}
+              // isShown={menuVisible}
+              messageId={selectedMessageId}
+            />
+          )}
           <Message
             type="theirs"
             messageId="228"
@@ -182,6 +212,8 @@ const styles = StyleSheet.create({
   safeContainer: {
     flex: 1,
     backgroundColor: "#934CC2",
+    borderColor: "blue",
+    borderWidth: 1,
   },
   container: {
     flex: 1,
@@ -189,6 +221,8 @@ const styles = StyleSheet.create({
   messageContainer: {
     flex: 1,
     padding: 10,
+    borderColor: "red",
+    borderWidth: 0.5,
   },
   scrollButton: {
     position: "absolute",
