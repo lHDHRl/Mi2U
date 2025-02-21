@@ -1,20 +1,19 @@
-import React, { useEffect, useMemo } from "react";
 import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import {
   useFonts,
   K2D_100Thin,
   K2D_800ExtraBold,
 } from "@expo-google-fonts/k2d";
+import React, { useEffect } from "react";
 import * as SplashScreen from "expo-splash-screen";
-import StartScreen from "./pages/start-screen";
-import MainScreen from "./pages/main-screen";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-
-SplashScreen.preventAutoHideAsync();
+import { useMemo } from "react";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import StartScreen from "./app/pages/start-screen";
+import MainScreen from "./app/pages/main-screen";
 
 const Stack = createNativeStackNavigator();
-
+SplashScreen.preventAutoHideAsync();
 export default function App() {
   const [fontsLoaded] = useFonts({
     K2D_100Thin,
