@@ -75,16 +75,9 @@ export default function MainScreen() {
   }, []);
 
   const handleLongPress = (event: GestureResponderEvent, messageId: string) => {
-    // setSelectedMessageId(messageId); // Сохраняем ID выбранного сообщения
-    // showDeleteMenu(); // Показываем меню
-    console.log("main-screen handleLongPress");
-    const { pageX, pageY, locationX, locationY } = event.nativeEvent;
-    // setCoordinates({ x: pageX, y: pageY });
-    console.log(locationX, locationY);
-    setCoordinates({ x: locationX, y: locationY });
-    setSelectedMessageId(messageId);
+    setSelectedMessageId(messageId); // Сохраняем ID выбранного сообщения
+    showDeleteMenu(); // Показываем меню
   };
-  const closeMessagePopup = () => setSelectedMessageId(null);
 
   const scrollToBottom = useCallback(() => {
     isAutoScrolling.current = true;
@@ -212,8 +205,8 @@ const styles = StyleSheet.create({
   messageContainer: {
     flex: 1,
     padding: 10,
-    borderColor: "red",
-    borderWidth: 0.5,
+    // borderColor: "red",
+    // borderWidth: 0.5,
   },
   scrollButton: {
     position: "absolute",
