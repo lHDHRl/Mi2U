@@ -17,7 +17,6 @@ import { Header } from "../components/Header";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Alert } from "react-native";
 import axios from "axios";
-import MessagePopup from "../components/MessagePopup";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 export default function MainScreen() {
@@ -166,14 +165,6 @@ export default function MainScreen() {
               }} // Передаем обработчик долгого нажатия
             />
           ))}
-          {selectedMessageId && (
-            <MessagePopup
-              x={coordinates.x}
-              y={coordinates.y}
-              // isShown={menuVisible}
-              messageId={selectedMessageId}
-            />
-          )}
           <Message
             type="theirs"
             messageId="228"
