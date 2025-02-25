@@ -73,7 +73,7 @@ const WidgetButton: React.FC<widgetButtonProps> = ({
       onPressOut={() => {
         console.log("onPressOut in widgetButton")
         setWasWidgetButtonPressed(true); // хз нахуя я дублировал пусть будет
-        // handleOnPress();
+        handleOnPress(); // когда поднимает палец запускаем функцию обработчик нажатия 
       }}
     >
       <Text>{buttonText}</Text>

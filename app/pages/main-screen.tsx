@@ -134,6 +134,8 @@ export default function MainScreen() {
           },
         ]
       );
+      // независимо от того, удалил пользователь сообщение или нет - надо убрать виджет
+      setWidgetPosition({ x: 0, y: 0 });
     }
   };
 
@@ -162,7 +164,7 @@ export default function MainScreen() {
         if (wasWidgetButtonPressed) { // если пользователь тапнул по экрану, и по кнопке на виджете в том числе - закрывать нельзя виджет
           console.log("нельзя закрывать виджет");
           setWasWidgetButtonPressed(false);
-        } else if (!wasWidgetButtonPressed && timeDifference < 700) { // если пользователь не нажимал на кнопку и не удерживал в момент сообщение (то есть не открывал виджет)
+        } else if (!wasWidgetButtonPressed && timeDifference < 505) { // если пользователь не нажимал на кнопку и не удерживал в момент сообщение (то есть не открывал виджет)
           console.log("можно закрыть виджет"); // виджет можно закрыть 
           setWidgetPosition({ x: 0, y: 0 }); // когда координаты нулевые - виджет не отображается 
           // setWasWidgetButtonPressed(false);
@@ -202,6 +204,7 @@ export default function MainScreen() {
                   messages.find((m) => m.messageId === message.messageId)
                     ?.message
                 );
+                setSelectedMessageId(message.messageId); // когда пользователь удерживает сообщение, запоминаем это сообщение чтобы потом его (если надо) удалить (возможно будет проблема из-за того что нигде не сбрасывается это сообщение которое мы запомнили - оно просто висит в памяти)
                 handleLongPress(event, message.messageId);
               }} // Передаем обработчик долгого нажатия
             />
@@ -225,13 +228,19 @@ export default function MainScreen() {
                   setWasWidgetButtonPressed: setWasWidgetButtonPressed,
                   buttonText: "Ответить",
                   position: "first",
-                  handleOnPress: () => console.log("Ответить"),
+                  handleOnPress: () => {
+                    console.log("in handleOnPress for Replying"); // функционал для того, чтобы по нажатии на кнопку ответить - появлялось соответствующее окно в текстовом поле ввода 
+                    if (selectedMessageId === null) return;
+
+                    const target = messages.find(message => message.messageId === selectedMessageId);
+                    (target !== undefined) && setReplyMessage(target);
+                  },
                 },
                 {
                   setWasWidgetButtonPressed: setWasWidgetButtonPressed,
                   buttonText: "Удалить",
                   position: "middle",
-                  handleOnPress: () => console.log("Удалить"),
+                  handleOnPress: () => showDeleteMenu(selectedMessageId), // отображаем меню для удаления 
                 },
                 {
                   setWasWidgetButtonPressed: setWasWidgetButtonPressed,

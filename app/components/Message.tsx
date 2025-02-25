@@ -33,9 +33,13 @@ const Message: React.FC<MessageProps> = ({
 
   // при двойном таппе по чужопу сообщению пользователь отвечает на него
   const handleDoubleTap = useDoubleTap(() => {
-    if (type === "theirs") {
-      setReplyMessage({ type, messageId, message, time });
-    }
+    // VADIM: отвечать можно только на чужие сообщение 
+    // if (type === "theirs") {
+    //   setReplyMessage({ type, messageId, message, time });
+    // }
+
+    // VSTAFF: отвечать можно на любые
+    setReplyMessage({ type, messageId, message, time, }) 
   });
 
   return (
