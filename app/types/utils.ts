@@ -4,4 +4,5 @@ export default interface messageInterface {
   message: string;
   time: string;
   answerTo?: string;
+  checkBoxValue: boolean, // VSTAFF - выбрано сообщение или нет для удаления 
 }

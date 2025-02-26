@@ -13,7 +13,7 @@ import {
 import { Input } from "../components/Input";
 import Message from "../components/Message";
 import messageInterface from "../types/utils";
-import { Header } from "../components/Header";
+import Header from "../components/Header";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Alert } from "react-native";
 import axios from "axios";
@@ -26,11 +26,11 @@ export default function MainScreen() {
   const [input, setInput] = useState<string>(""); // поле ввода
   const scrollViewRef = useRef<ScrollView>(null); // для кнопки скролла вниз
   const [showScrollButton, setShowScrollButton] = useState(false); // отображение кнопки скролла вниз
-  const isAutoScrolling = useRef(false); // напишите кто нить зачем это 
-  const isUserAtBottom = useRef(true); // это тоже 
+  const isAutoScrolling = useRef(false); // напишите кто нить зачем это
+  const isUserAtBottom = useRef(true); // это тоже
   const [replyMessage, setReplyMessage] = useState<messageInterface | null>(
     null
-  ); // это тоже 
+  ); // это тоже
   const [menuVisible, setMenuVisible] = useState(false); // Видимость меню
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(
     null
@@ -42,10 +42,14 @@ export default function MainScreen() {
   const [widgetPosition, setWidgetPosition] = useState({ x: 0, y: 0 }); // позиции виджета
   const [wasWidgetButtonPressed, setWasWidgetButtonPressed] = useState(false); // была ли нажата кнопка на виджете (зачем нужно читай в  ../components/Widget.tsx)
   const [wasTouch, setWasTouch] = useState(false); // флаг, что пользователь касается экрана - зная был ли нажат экран, и была ли нажата кнопка - будем определять надо ли закрывать виджет
-  const [touchTime, setTouchTime] = useState({ // время тапа 
+  const [touchTime, setTouchTime] = useState({
+    // время тапа
     start: 0, // когда положил палец
     end: 0, // когда отпустил палец
   }); // - это нужно, чтобы когда пользователь удерживал сообщение - случайно не закрылся виджет (я хз у меня были вроде с этим баги - не уверен что 100% помогает)
+
+  const [selectMultipleMessagesMode, setSelectMultipleMessagesMode] =
+    useState<boolean>(false); // режим выбора нескольких сообщений 
 
   // Еще хочется добавить что в коде уже происходит пиздец и его бы разделить
   //Взаимодействие с беком (непотерять, работает локально ток у меня)
@@ -85,13 +89,13 @@ export default function MainScreen() {
   }, []);
 
   const handleLongPress = (event: GestureResponderEvent, messageId: string) => {
-    // VADIM - тут было удаление по удерживанию 
+    // VADIM - тут было удаление по удерживанию
     // setSelectedMessageId(messageId); // Сохраняем ID выбранного сообщения
     // showDeleteMenu(messageId); // Показываем меню
 
-    // BLUETOOTH - vstaff - тут появляется виджет по удерживанию 
+    // BLUETOOTH - vstaff - тут появляется виджет по удерживанию
     setSelectedMessageId(messageId); // Сохраняем ID выбранного сообщения (UPD from vstaff: я теперь не уверен что оно нужно)
-    const { pageX, pageY, locationX, locationY } = event.nativeEvent; // получаем координаты нажатия пользователя 
+    const { pageX, pageY, locationX, locationY } = event.nativeEvent; // получаем координаты нажатия пользователя
     // чутка корректируем координаты для удобства
     setWidgetPosition({ x: locationX - 5, y: pageY - locationY - 100 });
   };
@@ -143,35 +147,38 @@ export default function MainScreen() {
   return (
     <View
       onTouchStart={() => {
-        console.log("пользователь положил палец - экран"); 
-        setTouchTime((prevTouchTime) => ({ // фиксируем время 
+        console.log("пользователь положил палец - экран");
+        setTouchTime((prevTouchTime) => ({
+          // фиксируем время
           ...prevTouchTime,
           start: Date.now(),
         }));
-        setWasTouch(true); // фиксируем нажатие на экран 
+        setWasTouch(true); // фиксируем нажатие на экран
       }}
       onTouchEnd={() => {
         console.log("пользователь отпустил палец - экран");
         const currentTime = Date.now();
         setTouchTime((prevTouchTime) => ({
           ...prevTouchTime,
-          end: currentTime, // фиксируем время 
+          end: currentTime, // фиксируем время
         }));
 
-        console.log(`продолжительность нажатия: ${currentTime - touchTime.start} - экран`)
+        console.log(
+          `продолжительность нажатия: ${currentTime - touchTime.start} - экран`
+        );
         setWasTouch(false); // фиксируем съебывание пальца с экрана
         console.log(wasWidgetButtonPressed);
         const timeDifference = currentTime - touchTime.start;
-        if (wasWidgetButtonPressed) { // если пользователь тапнул по экрану, и по кнопке на виджете в том числе - закрывать нельзя виджет
+        if (wasWidgetButtonPressed) {
+          // если пользователь тапнул по экрану, и по кнопке на виджете в том числе - закрывать нельзя виджет
           console.log("нельзя закрывать виджет");
           setWasWidgetButtonPressed(false);
-        } else if (!wasWidgetButtonPressed && timeDifference < 505) { // если пользователь не нажимал на кнопку и не удерживал в момент сообщение (то есть не открывал виджет)
-          console.log("можно закрыть виджет"); // виджет можно закрыть 
-          setWidgetPosition({ x: 0, y: 0 }); // когда координаты нулевые - виджет не отображается 
+        } else if (!wasWidgetButtonPressed && timeDifference < 505) {
+          // если пользователь не нажимал на кнопку и не удерживал в момент сообщение (то есть не открывал виджет)
+          console.log("можно закрыть виджет"); // виджет можно закрыть
+          setWidgetPosition({ x: 0, y: 0 }); // когда координаты нулевые - виджет не отображается
           // setWasWidgetButtonPressed(false);
         }
-
-
       }}
       // onTouchStart={() => closeMessagePopup()}
       style={styles.safeContainer}
@@ -182,7 +189,17 @@ export default function MainScreen() {
       >
         {/* по совету дани чтобы хедер не залазил на шапку телефона */}
         <SafeAreaView>
-          <Header />
+          <Header
+            selectMultipleMessagesMode={selectMultipleMessagesMode} // когда активирован режим выбора нескольких сообщений - в шапке появляются кнопки (см в Header.tsx)
+            cancelHandler={() => { // выход из режима выбора нескольких сообщений 
+              setSelectMultipleMessagesMode(false); // выход из режима выбора нескольких сообщений 
+              setMessages(prevMessages => prevMessages.map(m => ({ ...m, checkBoxValue: false, }))); // у всех сообщений скрываем чекбокс 
+            }}
+            deleteHandler={() => {
+              setSelectMultipleMessagesMode(false); // выход из режима выбора нескольких сообщений 
+              setMessages(prevMessages => prevMessages.filter(m => !m.checkBoxValue)); // удаляем сообщения у которых были отмечены чекбоксы 
+            }}
+          />
         </SafeAreaView>
         <ScrollView
           ref={scrollViewRef}
@@ -197,6 +214,18 @@ export default function MainScreen() {
         >
           {messages.map((message) => (
             <Message
+              selectionMode={selectMultipleMessagesMode} // если активирован режим выбора нескольких сообщений - у каждого сообщения должен появиться чекбокс 
+              // checkBoxValue={message.checkBoxValue}
+              checkBoxHandleOnPress={() => { // обработчик нажатия на чекбокс 
+                console.log("checkBoxHandleOnPress in main-screen.tsx");
+                setMessages((prevMessages) => // при нажатии на чекбокс его значение меняется на противоположное 
+                  prevMessages.map((m) =>
+                    m.messageId === message.messageId
+                      ? { ...m, checkBoxValue: !m.checkBoxValue }
+                      : m
+                  )
+                );
+              }}
               {...message}
               key={message.messageId}
               setReplyMessage={setReplyMessage}
@@ -211,6 +240,9 @@ export default function MainScreen() {
             />
           ))}
           <Message
+            selectionMode={selectMultipleMessagesMode}
+            checkBoxValue={false}
+            checkBoxHandleOnPress={() => {}}
             type="theirs"
             messageId="228"
             message="Привет! Как дела? Я хочу рассказать историю как я попал в зомба апокалипсис прикинь да"
@@ -230,24 +262,30 @@ export default function MainScreen() {
                   buttonText: "Ответить",
                   position: "first",
                   handleOnPress: () => {
-                    console.log("in handleOnPress for Replying"); // функционал для того, чтобы по нажатии на кнопку ответить - появлялось соответствующее окно в текстовом поле ввода 
+                    console.log("in handleOnPress for Replying"); // функционал для того, чтобы по нажатии на кнопку ответить - появлялось соответствующее окно в текстовом поле ввода
                     if (selectedMessageId === null) return;
 
-                    const target = messages.find(message => message.messageId === selectedMessageId);
-                    (target !== undefined) && setReplyMessage(target);
+                    const target = messages.find(
+                      (message) => message.messageId === selectedMessageId
+                    );
+                    target !== undefined && setReplyMessage(target);
                   },
                 },
                 {
                   setWasWidgetButtonPressed: setWasWidgetButtonPressed,
                   buttonText: "Удалить",
                   position: "middle",
-                  handleOnPress: () => showDeleteMenu(selectedMessageId), // отображаем меню для удаления 
+                  handleOnPress: () => showDeleteMenu(selectedMessageId), // отображаем меню для удаления
                 },
                 {
                   setWasWidgetButtonPressed: setWasWidgetButtonPressed,
                   buttonText: "Выбрать",
                   position: "last",
-                  handleOnPress: () => console.log("Выбрать"),
+                  handleOnPress: () => {
+                    console.log("in handleOnPress for Selecting");
+                    setMessages(prevMessages => prevMessages.map(m => m.messageId === selectedMessageId ? { ...m, checkBoxValue: true, } : m))
+                    setSelectMultipleMessagesMode(true);
+                  },
                 },
               ]}
             />

@@ -11,6 +11,8 @@ import messageInterface from "../types/utils";
 import { v4 as uuidv4 } from "uuid";
 import "react-native-get-random-values";
 import STYLES from "../styles/STYLES";
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
+import { faChevronRight, } from "@fortawesome/free-solid-svg-icons/faChevronRight"
 
 // Определяем типы пропсов
 interface Props {
@@ -59,8 +61,9 @@ export const Input: React.FC<Props> = ({
       message: trimmedInput,
       time: formatTime(),
       replyText: replyMessage?.message || undefined,
+      checkBoxValue: false,
     };
-
+    
     setMessages((prevMessages) => [...prevMessages, newMessage]);
     setInput("");
     sendMessageToServer(newMessage);
@@ -107,7 +110,8 @@ export const Input: React.FC<Props> = ({
           style={styles.button}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
         >
-          <Text style={styles.buttonText}>{">"}</Text>
+          {/* <Text style={styles.buttonText}>{">"}</Text> */}
+          <FontAwesomeIcon icon={faChevronRight} color="white" />
         </TouchableOpacity>
       </View>
     </SafeAreaView>

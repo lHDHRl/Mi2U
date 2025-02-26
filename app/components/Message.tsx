@@ -5,6 +5,7 @@ import { useDoubleTap } from "../hooks/useDoubleTap";
 import messageInterface from "../types/utils";
 import { GestureResponderEvent } from "react-native";
 import STYLES from "../styles/STYLES";
+import CheckBox from "./CheckBox";
 
 // Типизация пропсов
 interface MessageProps {
@@ -18,6 +19,10 @@ interface MessageProps {
   >; // Функция для установки reply
   replyText?: string; // Текст сообщения, на которое идет ответ (опционально)
   handleLongPress?: (event: GestureResponderEvent, messageId: string) => void; // Новый пропс для долгого нажатия (upd from vstaff: переделал вид хендлера - у него появились аргументы)
+
+  checkBoxValue: boolean; // выбрано для удаления или нет (VSTAFF)
+  checkBoxHandleOnPress: () => void; // VSTAFF - обработка нажатия на checkbox
+  selectionMode: boolean; // VSTAFF - находится ли приложение в режиме выбора сообщения
 }
 
 const Message: React.FC<MessageProps> = ({
@@ -29,48 +34,68 @@ const Message: React.FC<MessageProps> = ({
   setReplyMessage,
   replyText,
   handleLongPress,
+
+  checkBoxValue,
+  checkBoxHandleOnPress,
+  selectionMode,
 }) => {
   const isYours = type === "yours";
 
   // при двойном таппе по чужопу сообщению пользователь отвечает на него
   const handleDoubleTap = useDoubleTap(() => {
-    // VADIM: отвечать можно только на чужие сообщение 
+    // VADIM: отвечать можно только на чужие сообщение
     // if (type === "theirs") {
     //   setReplyMessage({ type, messageId, message, time });
     // }
 
     // VSTAFF: отвечать можно на любые
-    setReplyMessage({ type, messageId, message, time, }) 
+    setReplyMessage({ type, messageId, message, time, checkBoxValue });
   });
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.9}
-      onPress={handleDoubleTap}
-      onLongPress={(event: GestureResponderEvent) => {
-        if (type === "yours" && handleLongPress) {
-          handleLongPress(event, messageId);
-        }
-      }}
-    >
-      <View style={isYours ? styles.yourContainer : styles.theirContainer}>
-        {/* Блок ответа на сообщение */}
-        {replyText && (
-          <Text
-            style={isYours ? styles.yourAnswerTo : styles.theirAnswerTo}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
-            Ответ на:{" "}
-            {replyText.length > 20 ? `${replyText.slice(0, 20)}...` : replyText}
-          </Text>
-        )}
-        {/* Основной текст сообщения */}
-        <Text style={styles.message}>{message}</Text>
-        {/* Время отправки */}
-        <Text style={styles.time}>{time}</Text>
-      </View>
-    </TouchableOpacity>
+    <View  >
+      {/* Виджет для выбора сообщений */}
+      {(selectionMode && type === "yours") && (
+        <CheckBox
+          messageId={messageId}
+          value={checkBoxValue}
+          handleOnPress={() => {
+            console.log("handleOnPress in Message.tsx");
+            checkBoxHandleOnPress();
+          }}
+        />
+      )}
+
+      <TouchableOpacity
+        activeOpacity={0.9}
+        onPress={handleDoubleTap}
+        onLongPress={(event: GestureResponderEvent) => {
+          if (type === "yours" && handleLongPress) {
+            handleLongPress(event, messageId);
+          }
+        }}
+      >
+        <View style={isYours ? styles.yourContainer : styles.theirContainer}>
+          {/* Блок ответа на сообщение */}
+          {replyText && (
+            <Text
+              style={isYours ? styles.yourAnswerTo : styles.theirAnswerTo}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              Ответ на:{" "}
+              {replyText.length > 20
+                ? `${replyText.slice(0, 20)}...`
+                : replyText}
+            </Text>
+          )}
+          {/* Основной текст сообщения */}
+          <Text style={styles.message}>{message}</Text>
+          {/* Время отправки */}
+          <Text style={styles.time}>{time}</Text>
+        </View>
+      </TouchableOpacity>
+    </View>
   );
 };
 
