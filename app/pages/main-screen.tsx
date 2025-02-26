@@ -20,6 +20,7 @@ import axios from "axios";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import Widget from "../components/Widget";
 
+import STYLES from "../styles/STYLES";
 export default function MainScreen() {
   const [messages, setMessages] = useState<messageInterface[]>([]); // массив сообщений
   const [input, setInput] = useState<string>(""); // поле ввода
@@ -281,7 +282,7 @@ export default function MainScreen() {
 const styles = StyleSheet.create({
   safeContainer: {
     flex: 1,
-    backgroundColor: "#934CC2",
+    backgroundColor: STYLES.COLORS.app_main,
     // borderColor: "blue",
     // borderWidth: 1,
   },
@@ -298,7 +299,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 20,
     bottom: Platform.OS === "ios" ? 105 : 90, // Подняли кнопку выше
-    backgroundColor: "rgba(0,0,0,0.7)",
+    backgroundColor: STYLES.COLORS.scroll_button_background,
     width: 44,
     height: 44,
     borderRadius: 22,
@@ -309,7 +310,7 @@ const styles = StyleSheet.create({
     // paddingBottom: Platform.OS === "ios" ? 10 : 0, // от этого кнопка вниз вытягивалась вниз
   },
   scrollButtonText: {
-    color: "white",
+    color: STYLES.COLORS.scroll_button_text,
     fontSize: 22,
   },
 });

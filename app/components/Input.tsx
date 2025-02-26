@@ -10,6 +10,7 @@ import {
 import messageInterface from "../types/utils";
 import { v4 as uuidv4 } from "uuid";
 import "react-native-get-random-values";
+import STYLES from "../styles/STYLES";
 
 // Определяем типы пропсов
 interface Props {
@@ -119,22 +120,22 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 8,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: STYLES.COLORS.reply_background,
     borderRadius: 8,
     marginBottom: 8,
   },
   replyText: {
     flex: 1,
     fontSize: 14,
-    color: "#666",
+    color: STYLES.COLORS.reply_text,
   },
   cancelReply: {
     fontSize: 16,
-    color: "#999",
+    color: STYLES.COLORS.cancel_reply_text,
     marginLeft: 8,
   },
   container: {
-    backgroundColor: "white",
+    backgroundColor: STYLES.COLORS.input_container_background,
     width: "100%",
   },
   inputContainer: {
@@ -145,22 +146,22 @@ const styles = StyleSheet.create({
   textInput: {
     flex: 1,
     padding: 12,
-    color: "black",
-    backgroundColor: "#D3D3D3",
+    color: STYLES.COLORS.input_text,
+    backgroundColor: STYLES.COLORS.input_background,
     borderRadius: 10,
     textAlignVertical: "top",
     fontSize: 16,
   },
   button: {
     padding: 12,
-    backgroundColor: "#52B788",
+    backgroundColor: STYLES.COLORS.send_button_background,
     borderRadius: 5,
     justifyContent: "center",
     alignItems: "center",
     marginLeft: 5,
   },
   buttonText: {
-    color: "white",
+    color: STYLES.COLORS.send_button_text,
     fontSize: 18,
     fontWeight: "bold",
   },

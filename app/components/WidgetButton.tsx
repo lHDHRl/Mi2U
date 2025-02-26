@@ -6,6 +6,7 @@
 import React from "react";
 import { StyleSheet } from "react-native";
 import { TouchableOpacity, Text } from "react-native";
+import STYLES from "../styles/STYLES";
 
 // Типизация аргументов ф.к. (функ. комп.)
 export interface widgetButtonProps {
@@ -23,7 +24,7 @@ const WidgetButton: React.FC<widgetButtonProps> = ({
   position,
 }) => {
   const basicStyle = { // стилек базовый 
-    backgroundColor: "white",
+    backgroundColor: STYLES.COLORS.widget_button_background,
     paddingHorizontal: 20,
     paddingVertical: 5,
     // flex: 1,
@@ -53,7 +54,7 @@ const WidgetButton: React.FC<widgetButtonProps> = ({
     modifiedStyle = {
       ...modifiedStyle,
       borderBottomWidth: 0.5,
-      borderColor: "gray",
+      borderColor: STYLES.COLORS.widget_button_border,
     };
   }
 

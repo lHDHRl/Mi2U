@@ -1,6 +1,7 @@
 import React from "react";
 import { SafeAreaView, StyleSheet } from "react-native";
 import StartButton from "../components/StartButton";
+import STYLES from "../styles/STYLES";
 
 export default function StartScreen() {
   return (
@@ -13,7 +14,7 @@ export default function StartScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#934CC2",
+    backgroundColor: STYLES.COLORS.app_main, // purple
     alignItems: "center",
     justifyContent: "center",
   },
